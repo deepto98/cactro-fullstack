@@ -14,11 +14,16 @@ import (
 	"github.com/deepto98/cargo-fullstack/internal/db"
 	"github.com/deepto98/cargo-fullstack/internal/middleware"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 
 	_ "github.com/lib/pq"
 )
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Printf("No .env file found: %v", err)
+		// Continue execution as env vars might be set in the system
+	}
 	// Read DB connection string from environment or flag.
 	connStr := os.Getenv("DATABASE_URL")
 	if connStr == "" {
@@ -42,6 +47,9 @@ func main() {
 	// Create router.
 	router := mux.NewRouter()
 
+	// Serve static assets (CSS, JS, etc.)
+	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+
 	// API endpoints.
 	router.HandleFunc("/api/polls", apiHandler.CreatePoll).Methods("POST")
 	router.HandleFunc("/api/polls/{id:[0-9]+}", apiHandler.GetPoll).Methods("GET")
@@ -55,6 +63,16 @@ func main() {
 
 	// Wrap with logging middleware.
 	loggedRouter := middleware.LoggingMiddleware(router)
+
+	// Poll page route.
+	router.HandleFunc("/poll/{id:[0-9]+}", func(w http.ResponseWriter, r *http.Request) {
+		tmpl, err := template.ParseFiles("templates/poll.html")
+		if err != nil {
+			http.Error(w, "Template parsing error", http.StatusInternalServerError)
+			return
+		}
+		tmpl.Execute(w, nil)
+	}).Methods("GET")
 
 	// Set up server.
 	port := os.Getenv("PORT")

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Polling App - Poll</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <header>
+    <h1>Polling App</h1>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/polls">View Polls</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <section id="poll-section">
+      <h2 id="poll-question"></h2>
+      <div id="poll-options"></div>
+      <button id="voteButton">Vote</button>
+      <h3>Results:</h3>
+      <div id="poll-results"></div>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 Polling App</p>
+  </footer>
+  <script>
+    // Extract the poll ID from the URL (e.g., /poll/123).
+    const pollId = window.location.pathname.split('/').pop();
+    
+    function loadPoll() {
+      fetch('/api/polls/' + pollId)
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('poll-question').innerText = data.question;
+        const optionsDiv = document.getElementById('poll-options');
+        let optionsHtml = '';
+        data.options.forEach(opt => {
+          optionsHtml += `<div class="option">
+                            <input type="radio" name="option" value="${opt.id}" id="option${opt.id}">
+                            <label for="option${opt.id}">${opt.option_text}</label>
+                          </div>`;
+        });
+        optionsDiv.innerHTML = optionsHtml;
+        
+        // Display current results.
+        let resultsHtml = '';
+        data.options.forEach(opt => {
+          resultsHtml += `<div>${opt.option_text}: ${opt.vote_count} vote(s)</div>`;
+        });
+        document.getElementById('poll-results').innerHTML = resultsHtml;
+      })
+      .catch(error => console.error("Error loading poll:", error));
+    }
+    
+    document.getElementById('voteButton').addEventListener('click', function() {
+      const selected = document.querySelector('input[name="option"]:checked');
+      if (!selected) {
+        alert("Please select an option.");
+        return;
+      }
+      fetch(`/api/polls/${pollId}/vote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ option_id: parseInt(selected.value) })
+      })
+      .then(() => loadPoll())
+      .catch(error => console.error("Error voting:", error));
+    });
+    
+    // Auto-refresh poll data every 5 seconds.
+    setInterval(loadPoll, 5000);
+    loadPoll();
+  </script>
+</body>
+</html>
