@@ -1,4 +1,4 @@
-module github.com/deepto98/cargo-fullstack
+module github.com/deepto98/cactro-fullstack
 
 go 1.22.2
 
