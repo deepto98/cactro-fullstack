@@ -5,6 +5,17 @@
   <title>Polling App - Poll</title>
   <link rel="stylesheet" href="/static/css/styles.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Styling specific to the poll page */
+    .option {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .option label {
+      margin-left: 8px;
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -29,7 +40,7 @@
     <p>&copy; 2025 Polling App</p>
   </footer>
   <script>
-    // Extract the poll ID from the URL (e.g., /poll/123).
+    // Extract the poll ID from the URL (e.g., /poll/123)
     const pollId = window.location.pathname.split('/').pop();
     
     function loadPoll() {
