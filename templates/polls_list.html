@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Polling App - All Polls</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <header>
+    <h1>Polling App</h1>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/polls">View Polls</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <section id="polls-list">
+      <h2>All Polls</h2>
+      <ul id="pollList">
+        <!-- Poll items will be loaded here -->
+      </ul>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 Polling App</p>
+  </footer>
+  <script>
+    // Fetch all polls from the API and display them.
+    function loadPolls() {
+      fetch('/api/polls')
+        .then(response => response.json())
+        .then(data => {
+          const pollList = document.getElementById('pollList');
+          pollList.innerHTML = "";
+          data.forEach(poll => {
+            const li = document.createElement('li');
+            li.innerHTML = `<a href="/poll/${poll.id}">${poll.question}</a>`;
+            pollList.appendChild(li);
+          });
+        })
+        .catch(error => console.error("Error fetching polls:", error));
+    }
+    loadPolls();
+  </script>
+</body>
+</html>

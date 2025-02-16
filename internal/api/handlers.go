@@ -126,3 +126,31 @@ func (h *Handler) Vote(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Vote registered"})
 }
+
+// ListPolls handles GET /api/polls and returns a list of all polls.
+func (h *Handler) ListPolls(w http.ResponseWriter, r *http.Request) {
+	rows, err := h.DB.Query("SELECT id, question FROM polls")
+	if err != nil {
+		http.Error(w, "Failed to query polls", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	type PollSummary struct {
+		ID       int    `json:"id"`
+		Question string `json:"question"`
+	}
+
+	var polls []PollSummary
+	for rows.Next() {
+		var p PollSummary
+		if err := rows.Scan(&p.ID, &p.Question); err != nil {
+			http.Error(w, "Failed to scan poll", http.StatusInternalServerError)
+			return
+		}
+		polls = append(polls, p)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(polls)
+}
