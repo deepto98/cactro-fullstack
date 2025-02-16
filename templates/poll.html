@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Polling App - Poll</title>
@@ -12,16 +13,19 @@
       align-items: center;
       margin-bottom: 10px;
     }
+
     .option label {
       margin-left: 8px;
       flex: 1;
     }
+
     .vote-count {
       margin-left: 16px;
       font-weight: bold;
     }
   </style>
 </head>
+
 <body>
   <header>
     <h1>Polling App</h1>
@@ -55,7 +59,7 @@
         .then(data => {
           // Set poll question
           document.getElementById('poll-question').innerText = data.question;
-          
+
           // Render options with radio buttons and vote count spans
           const optionsDiv = document.getElementById('poll-options');
           let optionsHtml = '';
@@ -87,7 +91,7 @@
     }
 
     // Vote button click handler
-    document.getElementById('voteButton').addEventListener('click', function() {
+    document.getElementById('voteButton').addEventListener('click', function () {
       const selected = document.querySelector('input[name="option"]:checked');
       if (!selected) {
         alert("Please select an option.");
@@ -98,12 +102,19 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ option_id: parseInt(selected.value) })
       })
-      .then(response => response.json())
-      .then(data => {
-        // Immediately update the vote counts after voting
-        refreshResults();
-      })
-      .catch(error => console.error("Error voting:", error));
+        .then(response => {
+          if (!response.ok) {
+            // If response is not OK, attempt to read it as text and throw an error.
+            return response.text().then(text => {
+              throw new Error(text);
+            });
+          }
+          return response.json();
+        }).then(data => {
+          // Immediately update the vote counts after voting
+          refreshResults();
+        })
+        .catch(error => console.error("Error voting:", error));
     });
 
     // Load poll details once, then refresh vote counts every 5 seconds
@@ -111,4 +122,5 @@
     setInterval(refreshResults, 5000);
   </script>
 </body>
+
 </html>

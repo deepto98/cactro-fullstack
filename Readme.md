@@ -13,6 +13,7 @@ I coded the web service in Go and used HTML templates for the UI. Its deployed a
   - templates: Contains Go HTML templates for the UI.
   - static: Contains static assets like CSS.
 
+
 API Endpoints
 -------------
 1. Create Poll
@@ -126,6 +127,7 @@ Backend:
 Frontend:
   - The UI is built using Go templates located in the templates folder.
   - Static assets (including CSS) are served from the static directory.
+  - The vote counts are refreshed every 5 seconds by default and its also refreshed immediately when we cast a vote. 
 
 Middleware:
   - Custom middleware, such as logging, is implemented in the internal/middleware package.
