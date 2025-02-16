@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Polling App - Home</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <header>
+    <h1>Polling App</h1>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/polls">View Polls</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <section id="create-poll">
+      <h2>Create a New Poll</h2>
+      <form id="createPollForm">
+        <div class="form-group">
+          <label for="question">Poll Question:</label>
+          <input type="text" id="question" name="question" placeholder="Enter your poll question" required>
+        </div>
+        <div id="options-container">
+          <div class="form-group option-group">
+            <label>Option 1:</label>
+            <input type="text" class="optionInput" required>
+          </div>
+          <div class="form-group option-group">
+            <label>Option 2:</label>
+            <input type="text" class="optionInput" required>
+          </div>
+        </div>
+        <button type="button" id="addOption">Add Another Option</button>
+        <button type="submit">Create Poll</button>
+      </form>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 Polling App</p>
+  </footer>
+  <script>
+    // Add more options dynamically.
+    document.getElementById('addOption').addEventListener('click', function() {
+      const optionsContainer = document.getElementById('options-container');
+      const optionCount = optionsContainer.getElementsByClassName('option-group').length + 1;
+      const newDiv = document.createElement('div');
+      newDiv.className = 'form-group option-group';
+      newDiv.innerHTML = `<label>Option ${optionCount}:</label><input type="text" class="optionInput" required>`;
+      optionsContainer.appendChild(newDiv);
+    });
+
+    // Handle poll creation.
+    document.getElementById('createPollForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const question = document.getElementById('question').value;
+      const optionInputs = document.getElementsByClassName('optionInput');
+      const options = [];
+      for (let input of optionInputs) {
+        if (input.value.trim() !== "") {
+          options.push(input.value.trim());
+        }
+      }
+      if(options.length < 2) {
+        alert("Please provide at least two options.");
+        return;
+      }
+
+      fetch('/api/polls', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question, options })
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Redirect to the dedicated poll page after creation.
+        window.location.href = '/poll/' + data.poll_id;
+      })
+      .catch(error => console.error("Error creating poll:", error));
+    });
+  </script>
+</body>
+</html>
