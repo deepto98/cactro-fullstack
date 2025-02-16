@@ -72,8 +72,8 @@ func (h *Handler) GetPoll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Fetch options.
-	rows, err := h.DB.Query("SELECT id, option_text, vote_count FROM poll_options WHERE poll_id = $1", pollID)
+	// Fetch options in a stable order.
+	rows, err := h.DB.Query("SELECT id, option_text, vote_count FROM poll_options WHERE poll_id = $1 ORDER BY id ASC", pollID)
 	if err != nil {
 		http.Error(w, "Failed to fetch options", http.StatusInternalServerError)
 		return

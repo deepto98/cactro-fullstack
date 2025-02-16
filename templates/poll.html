@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="/static/css/styles.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    /* Styling specific to the poll page */
+    /* Poll page specific styles */
     .option {
       display: flex;
       align-items: center;
@@ -14,6 +14,11 @@
     }
     .option label {
       margin-left: 8px;
+      flex: 1;
+    }
+    .vote-count {
+      margin-left: 16px;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -30,10 +35,10 @@
   <main>
     <section id="poll-section">
       <h2 id="poll-question"></h2>
-      <div id="poll-options"></div>
+      <div id="poll-options">
+        <!-- Options with radio buttons and vote counts will load here -->
+      </div>
       <button id="voteButton">Vote</button>
-      <h3>Results:</h3>
-      <div id="poll-results"></div>
     </section>
   </main>
   <footer>
@@ -42,32 +47,46 @@
   <script>
     // Extract the poll ID from the URL (e.g., /poll/123)
     const pollId = window.location.pathname.split('/').pop();
-    
-    function loadPoll() {
+
+    // Function to load poll question and options (only once)
+    function loadPollInitial() {
       fetch('/api/polls/' + pollId)
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById('poll-question').innerText = data.question;
-        const optionsDiv = document.getElementById('poll-options');
-        let optionsHtml = '';
-        data.options.forEach(opt => {
-          optionsHtml += `<div class="option">
-                            <input type="radio" name="option" value="${opt.id}" id="option${opt.id}">
-                            <label for="option${opt.id}">${opt.option_text}</label>
-                          </div>`;
-        });
-        optionsDiv.innerHTML = optionsHtml;
-        
-        // Display current results.
-        let resultsHtml = '';
-        data.options.forEach(opt => {
-          resultsHtml += `<div>${opt.option_text}: ${opt.vote_count} vote(s)</div>`;
-        });
-        document.getElementById('poll-results').innerHTML = resultsHtml;
-      })
-      .catch(error => console.error("Error loading poll:", error));
+        .then(response => response.json())
+        .then(data => {
+          // Set poll question
+          document.getElementById('poll-question').innerText = data.question;
+          
+          // Render options with radio buttons and vote count spans
+          const optionsDiv = document.getElementById('poll-options');
+          let optionsHtml = '';
+          data.options.forEach(opt => {
+            optionsHtml += `<div class="option">
+                              <input type="radio" name="option" value="${opt.id}" id="option${opt.id}">
+                              <label for="option${opt.id}">${opt.option_text}</label>
+                              <span class="vote-count" id="vote-count-${opt.id}">${opt.vote_count} vote(s)</span>
+                            </div>`;
+          });
+          optionsDiv.innerHTML = optionsHtml;
+        })
+        .catch(error => console.error("Error loading poll:", error));
     }
-    
+
+    // Function to refresh only the vote counts without re-rendering options
+    function refreshResults() {
+      fetch('/api/polls/' + pollId)
+        .then(response => response.json())
+        .then(data => {
+          data.options.forEach(opt => {
+            const voteCountElem = document.getElementById('vote-count-' + opt.id);
+            if (voteCountElem) {
+              voteCountElem.innerText = `${opt.vote_count} vote(s)`;
+            }
+          });
+        })
+        .catch(error => console.error("Error refreshing results:", error));
+    }
+
+    // Vote button click handler
     document.getElementById('voteButton').addEventListener('click', function() {
       const selected = document.querySelector('input[name="option"]:checked');
       if (!selected) {
@@ -79,13 +98,17 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ option_id: parseInt(selected.value) })
       })
-      .then(() => loadPoll())
+      .then(response => response.json())
+      .then(data => {
+        // Immediately update the vote counts after voting
+        refreshResults();
+      })
       .catch(error => console.error("Error voting:", error));
     });
-    
-    // Auto-refresh poll data every 5 seconds.
-    setInterval(loadPoll, 5000);
-    loadPoll();
+
+    // Load poll details once, then refresh vote counts every 5 seconds
+    loadPollInitial();
+    setInterval(refreshResults, 5000);
   </script>
 </body>
 </html>
