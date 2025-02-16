@@ -3,7 +3,7 @@ Polling App
 
 Overview
 --------
-I coded the web service in Go and used HTML templates for the UI. Its deployed at https://cargo-fullstack.onrender.com/. These are the primary components of the app:
+I coded the web service in Go and used HTML templates for the UI. Its deployed at https://cactro-fullstack.onrender.com/. These are the primary components of the app:
 
   - main.go: Contains the main entry point for the server.
   - internal/api: Contains API handlers for poll operations.
@@ -106,7 +106,8 @@ Database Schema
 Database:
   - PostgreSQL is used for storing poll data.
   - The schema consists of two main tables: polls and poll_options.
-  - Database initialization and connection handling are managed in the internal/db package.
+  - Database initialization and connection handling are managed in the internal/db package. 
+
  Table: polls
   - id: SERIAL PRIMARY KEY
   - question: TEXT NOT NULL
@@ -139,6 +140,6 @@ Setup & Deployment
 --------------------
 Environment Variables:
   - DATABASE_URL: PostgreSQL connection string (e.g., postgres://username:password@localhost:5432/polling_app?sslmode=disable)
-  - URL - https://cargo-fullstack.onrender.com/
+  - URL - https://cactro-fullstack.onrender.com/
  
  

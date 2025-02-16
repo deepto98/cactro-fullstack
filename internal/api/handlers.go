@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/deepto98/cargo-fullstack/internal/models"
+	"github.com/deepto98/cactro-fullstack/internal/models"
 	"github.com/gorilla/mux"
 )
 
