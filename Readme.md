@@ -105,7 +105,8 @@ Database Schema
 Database:
   - PostgreSQL is used for storing poll data.
   - The schema consists of two main tables: polls and poll_options.
-  - Database initialization and connection handling are managed in the internal/db package.
+  - Database initialization and connection handling are managed in the internal/db package. 
+
  Table: polls
   - id: SERIAL PRIMARY KEY
   - question: TEXT NOT NULL
